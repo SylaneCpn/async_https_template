@@ -6,9 +6,11 @@
     <title>Hello</title>
 </head>
 <body>
-    <h1>HI !</h1>
+    <h1>Wow !</h1>
 
-    <p>This is working just fine !</p>
+    <p>Another page !</p>
+
+    <p>Click on the button to go on the previous page !</p>
 
      <button type="button" onclick="sendRequest()">Click Me!</button>
     
@@ -21,9 +23,8 @@
                 document.open();
                 document.write(xhr.response);
                 document.close();
-                
         };
-            xhr.open('POST', '/test', true);
+            xhr.open('POST', '/', true);
             xhr.setRequestHeader("Content-Type", "text");
             xhr.setRequestHeader("Connetion", "keep-alive");
             xhr.send("sent from javascript");

@@ -16,10 +16,8 @@ use async_std::io::BufReader;
 
 
 pub async fn handle_client(mut stream: TlsStream<TcpStream>) {
-    
-    loop {
-        let mut buf_reader = BufReader::new(&mut stream);
 
+         let mut buf_reader = BufReader::new(&mut stream);
          let mut request = Vec::new();
 
          //"Reading request"
@@ -31,35 +29,60 @@ pub async fn handle_client(mut stream: TlsStream<TcpStream>) {
                 break;
             }
             else {
-
                 request.push(request_line.replace("\r\n",""));
             }
-         }
+         }//end header extract loop
+
 
         let mut header = Header::new();
 
 
-        
         header.process_header(&request);
-        dbg!(&request);
+        //println!("header : {} ",&header).await;
 
-        if header.failure {
-            break;
+        let mut body : Vec<u8> = Vec::new();
+
+        if header.length != 0 {
+
+            body = vec![0;header.length];
+            buf_reader.read_exact(&mut body[..]).await.unwrap();
+            //println!("body length : {}",body.len()).await;
+            //println!("body contents : {:?}",&body).await;
+            //println!("body contents as str : {}", String::from_utf8_lossy(&body)).await;
+
         }
+
+        //println!("request : {:?} ",&request);
+
 
 
         let status_line = "HTTP/1.1 200 OK";
 
         //"Reading content to file"
-        let contents = fs::read_to_string("templates/index.html").await.unwrap();
-        let length = contents.len();
+        if &header.request_uri == "/" {
 
 
-        let response =format!("{status_line}\r\nContent-Length: {length}\r\n\r\n{contents}");
+                let contents = fs::read_to_string("templates/index.html").await.unwrap();
+                let length = contents.len();
 
-        //"Sending Contents"
-        stream.write_all(response.as_bytes()).await.unwrap();
-        //"Response sent !"
-        
-    }
+
+                let response =format!("{status_line}\r\nContent-Length: {length}\r\n\r\n{contents}");
+
+                //"Sending Contents"
+                stream.write_all(response.as_bytes()).await.unwrap();
+                //"Response sent !"
+        }
+
+        else {
+                let contents = fs::read_to_string("templates/test.html").await.unwrap();
+                let length = contents.len();
+
+
+                let response =format!("{status_line}\r\nContent-Length: {length}\r\n\r\n{contents}");
+
+                //"Sending Contents"
+                stream.write_all(response.as_bytes()).await.unwrap();
+                //"Response sent !"
+        }
+
 }

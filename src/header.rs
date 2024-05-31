@@ -16,7 +16,7 @@ impl Header {
             failure: false,
             request_method: String::new(),
             request_uri: String::new(),
-            connection: String::from("keep-alive"),
+            connection: String::from("close"),
             upgrade: String::new(),
             length: 0,
         }
@@ -33,11 +33,11 @@ impl Header {
                     self.failure = true;
                     break;
                 }
-            } else if let Ok(connection) = sscanf!(line, "Connetion:{}", String) {
+            } else if let Ok(connection) = sscanf!(line, "Connetion: {}", String) {
                 self.connection = connection;
-            } else if let Ok(lenght) = sscanf!(line, "Content-Length:{usize}") {
+            } else if let Ok(lenght) = sscanf!(line, "Content-Length: {usize}") {
                 self.length = lenght;
-            } else if let Ok(upgrade) = sscanf!(line, "Upgrade:{}", String) {
+            } else if let Ok(upgrade) = sscanf!(line, "Upgrade: {}", String) {
                 self.upgrade = upgrade;
             }
         }
